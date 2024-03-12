@@ -2,39 +2,46 @@ import fastify from "fastify";
 import { initServer } from "@ts-rest/fastify";
 import { contract } from "@repo/api-contract";
 import cors from "@fastify/cors";
-import { z } from "zod";
 import { client, db } from "./db/client";
-import { post } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { transaction, category } from "./db/schema";
 
 const app = fastify();
 
 const s = initServer();
 
 const router = s.router(contract, {
-  getPost: async ({ params: { id: unparsedId } }) => {
-    const id = z.coerce.number().parse(unparsedId);
-    const posts = await db.select().from(post).where(eq(post.id, id));
-
-    if (posts.length === 0) {
-      throw new Error("Post not found");
-    }
-
+  getTransactions: async () => {
+    const transactions = await db.select().from(transaction);
     return {
       status: 200,
-      body: posts[0],
+      body: transactions,
     };
   },
-  createPost: async ({ body }) => {
-    const res = await db.insert(post).values(body).returning();
-
-    if (res.length === 0) {
-      throw new Error("Error creating post");
-    }
-
+  getCategories: async () => {
+    const categories = await db.select().from(category);
+    return {
+      status: 200,
+      body: categories,
+    };
+  },
+  createCategory: async () => {
+    return {
+      status: 200,
+      body: {
+        id: 1,
+        description: "",
+      },
+    };
+  },
+  createTransaction: async () => {
     return {
       status: 201,
-      body: res[0],
+      body: {
+        id: 1,
+        categoryId: 1,
+        value: 2000,
+        description: "Testing",
+      },
     };
   },
 });

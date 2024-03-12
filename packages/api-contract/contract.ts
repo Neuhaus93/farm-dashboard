@@ -3,31 +3,55 @@ import { z } from "zod";
 
 const c = initContract();
 
-const PostSchema = z.object({
+const TransactionSchema = z.object({
   id: z.number(),
-  title: z.string(),
-  body: z.string(),
+  value: z.number(),
+  description: z.string().nullable(),
+  categoryId: z.number(),
+});
+
+const CategorySchema = z.object({
+  id: z.number(),
+  description: z.string(),
 });
 
 export const contract = c.router({
-  createPost: {
-    method: "POST",
-    path: "/posts",
+  getTransactions: {
+    method: "GET",
+    path: "/transactions",
     responses: {
-      201: PostSchema,
+      200: z.array(TransactionSchema),
+    },
+  },
+  createTransaction: {
+    method: "POST",
+    path: "/transactions/add",
+    responses: {
+      201: TransactionSchema,
     },
     body: z.object({
-      title: z.string(),
-      body: z.string(),
+      value: z.number(),
+      description: z.string().optional(),
+      categoryId: z.number(),
     }),
-    summary: "Create a post",
   },
-  getPost: {
+  getCategories: {
     method: "GET",
-    path: `/posts/:id`,
+    path: "/categories",
     responses: {
-      200: PostSchema.nullable(),
+      200: z.array(CategorySchema),
     },
-    summary: "Get a post by id",
+  },
+  createCategory: {
+    method: "POST",
+    path: "/categories/add",
+    responses: {
+      201: CategorySchema,
+    },
+    body: z.object({
+      value: z.number(),
+      description: z.string().optional(),
+      categoryId: z.number(),
+    }),
   },
 });
